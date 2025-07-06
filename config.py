@@ -4,8 +4,8 @@ import os
 SMTP_CONFIG = {
     "host": "smtp.gmail.com",
     "port": 587,
-    "user": os.getenv("SMTP_USER", "swayamgupta999@gmail.com"),        # Your Gmail address
-    "pass": os.getenv("SMTP_PASS", "bfoy dyjv sjvl bhrx")              # Your Gmail app password
+    "user": os.getenv("SMTP_USER", "your-email@gmail.com"),        # Replace with your Gmail
+    "pass": os.getenv("SMTP_PASS", "your-app-password-here")       # Replace with your Gmail app password
 }
 
 # Email Recipients - support both environment variable and hardcoded list
@@ -14,8 +14,8 @@ if recipient_emails:
     # If environment variable exists (GitHub Actions), parse it
     email_list = [email.strip() for email in recipient_emails.split(",")]
 else:
-    # Fallback to hardcoded list (local development)
-    email_list = ["swayamgupta2003@gmail.com", "vanshagarwal0144@gmail.com", "vaibhavwork0725@gmail.com", "dev.pant13@gmail.com", "pushpendrasingh9753@gmail.com"]
+    # Fallback to hardcoded list (local development) - REPLACE WITH YOUR EMAILS
+    email_list = ["recipient1@example.com", "recipient2@example.com"]
 
 SUBSCRIBERS = {
     "emails": email_list

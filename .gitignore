@@ -25,3 +25,6 @@ seen.json
 
 # Local config (will use environment variables in GitHub)
 config_local.py
+*secret*
+*password*
+*.env
