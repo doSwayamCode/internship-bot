@@ -31,10 +31,8 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
         run: |
-          # Run a single smart check (no continuous loop for GitHub Actions)
-          python -c "
-          import sys
-          sys.path.append('.')
-          from smart_scheduler import smart_check_and_send
-          smart_check_and_send()
-          "
+          # First collect new internships
+          python collect.py
+
+          # Then send batch if any new ones found
+          python send_batch_email_only.py
