@@ -25,12 +25,22 @@ def save_batch(batch_data):
         json.dump(batch_data, f, indent=2)
 
 def add_to_batch(internship):
-    """Add a new internship to the current batch"""
+    """Add a new internship to the current batch (with duplicate checking)"""
     batch = load_batch()
+    
+    # Check for duplicates in current batch
+    for existing in batch:
+        if (existing.get('id') == internship.get('id') or 
+            (existing.get('title') == internship.get('title') and 
+             existing.get('company') == internship.get('company'))):
+            # Duplicate found, don't add
+            return False
+    
     # Add timestamp to track when it was added
     internship['added_at'] = datetime.now().isoformat()
     batch.append(internship)
     save_batch(batch)
+    return True
 
 def clear_batch():
     """Clear the batch after sending"""

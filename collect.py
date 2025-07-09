@@ -52,10 +52,12 @@ def collect_internships():
             continue
 
         # Add to batch instead of sending immediately
-        add_to_batch(job)
-        seen_ids.add(job['id'])
-        new_count += 1
-        print(f"✅ Added to batch: {job['title']} at {job['company']}")
+        if add_to_batch(job):
+            seen_ids.add(job['id'])
+            new_count += 1
+            print(f"✅ Added to batch: {job['title']} at {job['company']}")
+        else:
+            print(f"🔄 Skipped (duplicate in batch): {job['title']} at {job['company']}")
 
     save_seen(seen_ids)
     print(f"📥 Added {new_count} new internships to batch.")

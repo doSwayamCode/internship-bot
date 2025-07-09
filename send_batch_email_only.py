@@ -8,7 +8,7 @@ def send_batch_email_only():
     
     if not batch:
         print("📭 No new internships in batch to send.")
-        return
+        return False  # Return False when no email sent
     
     print(f"📮 Preparing to send {len(batch)} internships via email...")
     
@@ -48,8 +48,11 @@ def send_batch_email_only():
             formatted_internships += f"   🔗 Apply here: {job['link']}\n\n"
             counter += 1
     
-    # Create the final message using the template
-    final_message = BATCH_MESSAGE_TEMPLATE.format(internships_list=formatted_internships)
+    # Create the final message using the template with total count
+    final_message = BATCH_MESSAGE_TEMPLATE.format(
+        internships_list=formatted_internships,
+        total_count=len(batch)
+    )
     
     # Send email batch messages
     success_count = 0

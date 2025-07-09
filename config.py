@@ -24,23 +24,41 @@ SUBSCRIBERS = {
 # ...existing code...
 
 # Custom message template for batched internships
-BATCH_MESSAGE_TEMPLATE = """🎯 **Fresh Internship Opportunities Alert- Notes Shaala** 🎯
+BATCH_MESSAGE_TEMPLATE = """🚀 **Smart Internship Alert - Fresh Opportunities Found!** 
 
-Hello there,
+Dear Future Professional,
 
-I hope this email finds you well! Here are the latest handpicked internship opportunities that perfectly match your interests in Software Engineering, AI/ML, Data Analytics, Business Development, UI/UX, and specialized roles:
+Great news! Our intelligent system has discovered {total_count} new internship opportunities that match your career interests. These positions have been carefully filtered and verified to ensure they're fresh (posted within the last 2 weeks) and relevant to your skills.
 
 {internships_list}
 
-📈 **What's Next?**
-You'll receive fresh opportunities every time new relevant internships are found across all platforms. No spam, no repeats - just quality opportunities!
+📊 **Why These Opportunities?**
+• ✅ **Fresh Postings**: All opportunities are less than 2 weeks old
+• ✅ **AI-Filtered**: Automatically matched to your tech interests
+• ✅ **Duplicate-Free**: Each opportunity is unique and verified
+• ✅ **Multi-Source**: Scraped from 10+ premium job platforms
+
+🎯 **Quick Application Tips:**
+• Apply within 24-48 hours for best response rates
+• Tailor your resume to highlight relevant skills
+• Research the company before applying
+• Follow up professionally after 1 week
+
+📈 **System Stats:**
+• Sources Monitored: Internshala, LinkedIn, TimesJobs, Foundit, FreshersWorld, Instahyre, Wellfound & more
+• Next Check: In 5 hours
+• Alert Frequency: Smart (only when new opportunities found)
+
+� **What's Next?**
+You'll receive the next alert only when fresh opportunities are discovered. No spam, no repeats - just quality internships delivered to your inbox!
 
 Best of luck with your applications! 🌟
 
 ---
-Automated Internship Alert System
+**Smart Internship Bot** | Powered by AI
+🤖 Automated • 🎯 Targeted • 📧 Spam-Free
 
-💌 This message was sent to you by Notes Shaala because you subscribed to our exclusive internship alerts."""
+� *This intelligent system monitors the job market 24/7 so you don't have to.*"""
 
 # Scheduling configuration
 BATCH_INTERVAL_HOURS = 5  # Check every 5 hours (2-3 times per day)

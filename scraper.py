@@ -529,7 +529,7 @@ def scrape_unstop():
                             continue
                         
                         # Extract link
-                        link_elem = listing.select_one("a") or listing.find('a', href=True)
+                        link_elem = listing.select_one("a") or listing.select_one(".title a")
                         link = link_elem.get('href', '#') if link_elem else '#'
                         
                         if link.startswith('/'):
@@ -799,7 +799,7 @@ def scrape_glassdoor():
                 soup = BeautifulSoup(response.text, 'html.parser')
                 
                 # Look for job listings
-                job_elements = soup.find_all(['a', 'div'], class_=lambda x: x and ('job' in x.lower() or 'intern' in x.lower()))
+                job_elements = soup.find_all('a', 'div', class_=lambda x: x and ('job' in x.lower() or 'intern' in x.lower()))
                 for element in job_elements[:15]:
                     text = element.get_text(strip=True)
                     
@@ -1205,7 +1205,7 @@ def scrape_shine():
             except Exception as e:
                 print(f"⚠️ Error with Shine search {search_term}: {e}")
                 continue
-                
+            
             if len(results) >= 4:
                 break
                 
@@ -1215,82 +1215,214 @@ def scrape_shine():
     print(f"📦 Shine: Found {len(results)} internships")
     return results
 
-def scrape_job_portals_fallback():
-    """Fallback scraper for general job portals and aggregators"""
-    print("🔍 Scraping Additional Job Portals...")
+def scrape_foundit():
+    """Scrape Foundit.in (formerly Monster India)"""
+    print("🔍 Scraping Foundit.in...")
+    internships = []
     
-    results = []
+    search_terms = ['software engineer intern', 'data science intern', 'python intern', 
+                   'web developer intern', 'business development intern']
+    
+    for term in search_terms:
+        try:
+            url = f"https://www.foundit.in/srp/results?query={quote(term)}&locations=All+India"
+            print(f"   Checking Foundit for: {term}")
+            
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.content, 'html.parser')
+                
+                # Foundit job cards
+                job_cards = soup.find_all(['div'], class_=['jobTuple', 'job-tuple', 'srpResultCardContainer'])
+                
+                for card in job_cards[:5]:  # Limit to first 5 results
+                    try:
+                        title_elem = card.find(['a', 'h3'], class_=['jobTitle', 'job-title'])
+                        company_elem = card.find(['span', 'div'], class_=['companyName', 'company-name'])
+                        link_elem = card.find('a', href=True)
+                        
+                        if title_elem and company_elem:
+                            title = title_elem.get_text(strip=True)
+                            company = company_elem.get_text(strip=True)
+                            link = urljoin("https://www.foundit.in", link_elem['href']) if link_elem else url
+                            
+                            if is_tech_related(title, company):
+                                internships.append({
+                                    'id': f"foundit_{hash(title + company)}",
+                                    'title': title,
+                                    'company': company,
+                                    'link': link,
+                                    'source': 'Foundit',
+                                    'posted_date': 'Not specified'
+                                })
+                                print(f"✅ Found: {title} at {company}")
+                    except Exception as e:
+                        continue
+            
+            time.sleep(2)  # Respectful delay
+            
+        except Exception as e:
+            print(f"   Error searching {term}: {str(e)}")
+            continue
+    
+    print(f"📦 Foundit: Found {len(internships)} internships")
+    return internships
+
+def scrape_freshersworld():
+    """Scrape FreshersWorld.com"""
+    print("🔍 Scraping FreshersWorld...")
+    internships = []
     
     try:
+        url = "https://www.freshersworld.com/jobs/jobsearch/internship-jobs"
+        print(f"   Checking: {url}")
+        
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
         
-        # Additional job portal sources
-        fallback_sources = [
-            ("https://www.monster.com/jobs/search?q=internship+software+developer&where=india", "Monster"),
-            ("https://www.careerpower.in/internship-jobs.html", "CareerPower"),
-            ("https://www.clickjobs.com/internship-jobs", "ClickJobs"),
-            ("https://www.placementindia.com/internship.htm", "PlacementIndia")
-        ]
-        
-        for url, source_name in fallback_sources:
-            try:
-                print(f"   Checking {source_name}...")
-                
-                response = requests.get(url, headers=headers, timeout=15)
-                
-                if response.status_code != 200:
-                    print(f"   Status code: {response.status_code}")
-                    continue
-                
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Generic selectors for job listings
-                job_links = soup.find_all('a', href=True)
-                
-                for link in job_links[:20]:
-                    text = link.get_text(strip=True)
-                    href = link.get('href', '')
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # FreshersWorld job listings
+            job_cards = soup.find_all(['div', 'article'], class_=['job-container', 'job-card', 'listContainer'])
+            
+            for card in job_cards[:10]:  # Limit to first 10
+                try:
+                    title_elem = card.find(['h3', 'h4', 'a'], class_=['job-title', 'jobTitle'])
+                    company_elem = card.find(['span', 'div'], class_=['company', 'companyName'])
+                    link_elem = card.find('a', href=True)
                     
-                    if (len(text) > 10 and 
-                        ('intern' in text.lower() or is_tech_related(text)) and
-                        any(keyword in href.lower() for keyword in ['job', 'internship', 'career', 'vacancy'])):
+                    if title_elem and company_elem:
+                        title = title_elem.get_text(strip=True)
+                        company = company_elem.get_text(strip=True)
+                        link = urljoin("https://www.freshersworld.com", link_elem['href']) if link_elem else url
                         
-                        job_id = abs(hash(text + source_name.lower())) % 1000000
-                        
-                        if not any(existing['id'] == f"{source_name.lower()}_{job_id}" for existing in results):
-                            full_link = urljoin(url, href) if not href.startswith('http') else href
-                            
-                            results.append({
-                                "id": f"{source_name.lower()}_{job_id}",
-                                "title": text,
-                                "company": "Various Companies",
-                                "link": full_link,
-                                "source": source_name,
-                                "posted_date": "Not specified",
-                                "deadline": "Not specified"
+                        if is_tech_related(title, company):
+                            internships.append({
+                                'id': f"freshersworld_{hash(title + company)}",
+                                'title': title,
+                                'company': company,
+                                'link': link,
+                                'source': 'FreshersWorld',
+                                'posted_date': 'Not specified'
                             })
-                            print(f"✅ Found ({source_name}): {text}")
-                            
-                            if len(results) >= 8:
-                                break
-                
-                time.sleep(1)
-                        
-            except Exception as e:
-                print(f"⚠️ Error with {source_name}: {e}")
-                continue
-                
-            if len(results) >= 8:
-                break
-                
+                            print(f"✅ Found: {title} at {company}")
+                except Exception as e:
+                    continue
+                    
     except Exception as e:
-        print(f"⚠️ Error in fallback scraping: {e}")
+        print(f"   Error scraping FreshersWorld: {str(e)}")
     
-    print(f"📦 Additional Job Portals: Found {len(results)} internships")
-    return results
+    print(f"📦 FreshersWorld: Found {len(internships)} internships")
+    return internships
+
+def scrape_instahyre():
+    """Scrape Instahyre.com"""
+    print("🔍 Scraping Instahyre...")
+    internships = []
+    
+    try:
+        url = "https://www.instahyre.com/search-jobs/?q=intern"
+        print(f"   Checking: {url}")
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Instahyre job cards
+            job_cards = soup.find_all(['div'], class_=['job-card', 'opportunity-card'])
+            
+            for card in job_cards[:8]:  # Limit to first 8
+                try:
+                    title_elem = card.find(['h2', 'h3'], class_=['job-title'])
+                    company_elem = card.find(['span', 'div'], class_=['company-name'])
+                    link_elem = card.find('a', href=True)
+                    
+                    if title_elem and company_elem:
+                        title = title_elem.get_text(strip=True)
+                        company = company_elem.get_text(strip=True)
+                        link = urljoin("https://www.instahyre.com", link_elem['href']) if link_elem else url
+                        
+                        if is_tech_related(title, company):
+                            internships.append({
+                                'id': f"instahyre_{hash(title + company)}",
+                                'title': title,
+                                'company': company,
+                                'link': link,
+                                'source': 'Instahyre',
+                                'posted_date': 'Not specified'
+                            })
+                            print(f"✅ Found: {title} at {company}")
+                except Exception as e:
+                    continue
+                    
+    except Exception as e:
+        print(f"   Error scraping Instahyre: {str(e)}")
+    
+    print(f"📦 Instahyre: Found {len(internships)} internships")
+    return internships
+
+def scrape_wellfound():
+    """Scrape Wellfound (formerly AngelList)"""
+    print("🔍 Scraping Wellfound...")
+    internships = []
+    
+    try:
+        url = "https://wellfound.com/jobs?role=internship"
+        print(f"   Checking: {url}")
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Wellfound job listings
+            job_cards = soup.find_all(['div'], class_=['job', 'startup-job'])
+            
+            for card in job_cards[:8]:  # Limit to first 8
+                try:
+                    title_elem = card.find(['h2', 'h3', 'a'])
+                    company_elem = card.find(['span'], class_=['company'])
+                    link_elem = card.find('a', href=True)
+                    
+                    if title_elem and company_elem:
+                        title = title_elem.get_text(strip=True)
+                        company = company_elem.get_text(strip=True)
+                        link = urljoin("https://wellfound.com", link_elem['href']) if link_elem else url
+                        
+                        if is_tech_related(title, company):
+                            internships.append({
+                                'id': f"wellfound_{hash(title + company)}",
+                                'title': title,
+                                'company': company,
+                                'link': link,
+                                'source': 'Wellfound',
+                                'posted_date': 'Not specified'
+                            })
+                            print(f"✅ Found: {title} at {company}")
+                except Exception as e:
+                    continue
+                    
+    except Exception as e:
+        print(f"   Error scraping Wellfound: {str(e)}")
+    
+    print(f"📦 Wellfound: Found {len(internships)} internships")
+    return internships
+
+# ...existing code...
 
 def scrape_all():
     """Scrape from all sources and combine results"""
@@ -1335,14 +1467,48 @@ def scrape_all():
         print(f"⚠️ Shine failed: {e}")
     
     try:
-        all_results.extend(scrape_job_portals_fallback())
+        all_results.extend(scrape_foundit())
     except Exception as e:
-        print(f"⚠️ Additional job portals failed: {e}")
+        print(f"⚠️ Foundit failed: {e}")
     
     try:
-        all_results.extend(scrape_job_portals_fallback())
+        all_results.extend(scrape_freshersworld())
     except Exception as e:
-        print(f"⚠️ Fallback job portals failed: {e}")
+        print(f"⚠️ FreshersWorld failed: {e}")
+    
+    try:
+        all_results.extend(scrape_instahyre())
+    except Exception as e:
+        print(f"⚠️ Instahyre failed: {e}")
+    
+    try:
+        all_results.extend(scrape_wellfound())
+    except Exception as e:
+        print(f"⚠️ Wellfound failed: {e}")
+    
+    # Additional job portals would go here
+    # (Keeping for future expansion)
+    
+    # New websites
+    try:
+        all_results.extend(scrape_foundit())
+    except Exception as e:
+        print(f"⚠️ Foundit failed: {e}")
+    
+    try:
+        all_results.extend(scrape_freshersworld())
+    except Exception as e:
+        print(f"⚠️ FreshersWorld failed: {e}")
+    
+    try:
+        all_results.extend(scrape_instahyre())
+    except Exception as e:
+        print(f"⚠️ Instahyre failed: {e}")
+    
+    try:
+        all_results.extend(scrape_wellfound())
+    except Exception as e:
+        print(f"⚠️ Wellfound failed: {e}")
     
     # Remove duplicates by job id and similar titles
     unique_results = {}
