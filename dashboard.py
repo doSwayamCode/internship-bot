@@ -22,10 +22,9 @@ def show_main_menu():
     print("1. 📊 View Analytics & Statistics")
     print("2. 👥 Manage Subscribers") 
     print("3. 📧 Email Tracking & Reports")
-    print("4. 🔄 Re-subscription Management")
-    print("5. 📁 Export Data to Excel")
-    print("6. ⚙️  System Status")
-    print("7. 🚪 Exit")
+    print("4.  Export Data to Excel")
+    print("5. ⚙️  System Status")
+    print("6. 🚪 Exit")
     print("="*60)
 
 def show_analytics():
@@ -180,64 +179,6 @@ def email_tracking_menu():
         else:
             print("❌ Invalid choice")
 
-def resubscription_management():
-    """Re-subscription management and tools"""
-    print("\n🔄 RE-SUBSCRIPTION MANAGEMENT")
-    print("="*40)
-    print("1. 📧 Process Email-based Resubscribe Requests")
-    print("2. 👤 Manual Re-subscription")
-    print("3. 📋 View Re-subscription Instructions")
-    print("4. ⬅️  Back to Main Menu")
-    
-    choice = input("\nEnter choice (1-4): ").strip()
-    
-    if choice == "1":
-        try:
-            from email_resubscribe_processor import process_resubscribe_emails
-            resubscribed = process_resubscribe_emails()
-            if resubscribed:
-                print(f"✅ Processed {len(resubscribed)} re-subscription requests")
-            else:
-                print("📭 No re-subscription requests found")
-        except ImportError:
-            print("❌ Email resubscribe processor not available")
-    
-    elif choice == "2":
-        manual_resubscribe()
-    
-    elif choice == "3":
-        show_resubscription_instructions()
-    
-    elif choice == "4":
-        return
-    
-    else:
-        print("❌ Invalid choice")
-
-def show_resubscription_instructions():
-    """Show how users can re-subscribe"""
-    print("\n📋 RE-SUBSCRIPTION INSTRUCTIONS FOR USERS")
-    print("="*50)
-    print("Users can re-subscribe in the following ways:")
-    print("\n1. 📧 EMAIL METHOD:")
-    print("   • Reply to any previous InternBot email")
-    print("   • Or send email to the bot's email address")
-    print("   • Include one of these keywords in the email:")
-    print("     - RESUBSCRIBE")
-    print("     - SUBSCRIBE") 
-    print("     - SUBSCRIBE AGAIN")
-    print("     - SIGN ME UP")
-    print("     - OPT IN")
-    print("     - REJOIN")
-    print("     - RESUME EMAILS")
-    print("     - START EMAILS")
-    print("\n2. 🔧 MANUAL METHOD:")
-    print("   • Contact administrator")
-    print("   • Use this management dashboard")
-    print("\n3. 📝 GOOGLE FORM METHOD:")
-    print("   • Create a Google Form for re-subscriptions")
-    print("   • Process responses manually")
-
 def show_system_status():
     """Show system status and health check"""
     print("\n⚙️  SYSTEM STATUS")
@@ -288,7 +229,7 @@ def main():
     
     while True:
         show_main_menu()
-        choice = input("\nEnter your choice (1-7): ").strip()
+        choice = input("\nEnter your choice (1-6): ").strip()
         
         if choice == "1":
             show_analytics()
@@ -300,23 +241,20 @@ def main():
             email_tracking_menu()
         
         elif choice == "4":
-            resubscription_management()
-        
-        elif choice == "5":
             if export_to_excel():
                 print("✅ Data exported to internbot_tracking_data.xlsx")
             else:
                 print("❌ Export failed")
         
-        elif choice == "6":
+        elif choice == "5":
             show_system_status()
         
-        elif choice == "7":
+        elif choice == "6":
             print("👋 Goodbye! Thank you for using InternBot Dashboard.")
             break
         
         else:
-            print("❌ Invalid choice. Please enter 1-7.")
+            print("❌ Invalid choice. Please enter 1-6.")
         
         input("\nPress Enter to continue...")
 

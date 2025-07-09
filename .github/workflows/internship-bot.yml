@@ -38,9 +38,6 @@ jobs:
           # First process any unsubscribe requests (email-based)
           python email_unsubscribe_processor.py || echo "Unsubscribe processing failed, continuing..."
 
-          # Process any resubscribe requests (email-based)
-          python email_resubscribe_processor.py || echo "Resubscribe processing failed, continuing..."
-
           # Then collect new internships
           python collect.py
 
