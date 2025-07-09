@@ -1,6 +1,8 @@
 from storage import load_batch, clear_batch
 from messenger import send_batch_email
 from config import BATCH_MESSAGE_TEMPLATE, SMTP_CONFIG, SUBSCRIBERS
+from email_tracker import log_internship_data
+from datetime import datetime
 
 def send_batch_email_only():
     """Send batch via email only with enhanced formatting"""
@@ -18,6 +20,9 @@ def send_batch_email_only():
     # Use SMTP config directly
     smtp_config = SMTP_CONFIG
     
+    # Generate bot run ID for tracking
+    bot_run_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+    
     # Enhanced formatting for better readability
     formatted_internships = ""
     
@@ -29,6 +34,7 @@ def send_batch_email_only():
             sources[source] = []
         sources[source].append(job)
     
+    NOT_SPECIFIED = 'Not specified'
     counter = 1
     for source, jobs in sources.items():
         formatted_internships += f"\n📍 **{source.upper()}:**\n"
@@ -36,12 +42,12 @@ def send_batch_email_only():
             formatted_internships += f"{counter}. **{job['title']}** at {job['company']}\n"
             
             # Add date information if available
-            posted_date = job.get('posted_date', 'Not specified')
-            deadline = job.get('deadline', 'Not specified')
+            posted_date = job.get('posted_date', NOT_SPECIFIED)
+            deadline = job.get('deadline', NOT_SPECIFIED)
             
-            if posted_date != 'Not specified' or deadline != 'Not specified':
+            if posted_date != NOT_SPECIFIED or deadline != NOT_SPECIFIED:
                 formatted_internships += f"   📅 Posted: {posted_date}"
-                if deadline != 'Not specified':
+                if deadline != NOT_SPECIFIED:
                     formatted_internships += f" | ⏰ Deadline: {deadline}"
                 formatted_internships += "\n"
             
@@ -54,6 +60,9 @@ def send_batch_email_only():
         total_count=len(batch)
     )
     
+    # Log internship data for tracking
+    log_internship_data(batch, email_recipients, bot_run_id)
+    
     # Send email batch messages
     success_count = 0
     for email in email_recipients:
@@ -64,7 +73,8 @@ def send_batch_email_only():
                     email, 
                     batch, 
                     final_message,  # Use the formatted message directly
-                    smtp_config
+                    smtp_config,
+                    bot_run_id
                 )
                 success_count += 1
             except Exception as e:
@@ -73,6 +83,7 @@ def send_batch_email_only():
     # Clear the batch after sending
     clear_batch()
     print(f"✅ Successfully sent to {success_count} recipients. Batch cleared.")
+    return True
 
 if __name__ == "__main__":
     send_batch_email_only()

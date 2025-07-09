@@ -1,6 +1,11 @@
 import smtplib
 from email.mime.text import MIMEText
 import time
+from datetime import datetime
+from email_tracker import log_email_send, log_internship_data, init_tracking_files
+
+# Initialize tracking files when module is imported
+init_tracking_files()
 
 def send_email(to, subject, body, smtp_cfg):
     msg = MIMEText(body)
@@ -16,8 +21,11 @@ def send_email(to, subject, body, smtp_cfg):
 
 # WhatsApp functionality removed - Email-only bot
 
-def send_batch_email(to, internships_list, custom_message, smtp_cfg):
+def send_batch_email(to, internships_list, custom_message, smtp_cfg, bot_run_id=None):
     """Send a batch of internships in a single email with custom formatting"""
+    if bot_run_id is None:
+        bot_run_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+    
     try:
         # If custom_message is already formatted, use it directly
         if isinstance(custom_message, str) and "{internships_list}" not in custom_message:
@@ -42,7 +50,13 @@ def send_batch_email(to, internships_list, custom_message, smtp_cfg):
             s.starttls()
             s.login(smtp_cfg['user'], smtp_cfg['pass'])
             s.send_message(msg)
+        
+        # Log successful email send
+        log_email_send(to, len(internships_list), subject, 'success', bot_run_id)
         print(f"📧 Sent internship batch to {to} ({len(internships_list)} opportunities)")
+        
     except Exception as e:
+        # Log failed email send
+        log_email_send(to, len(internships_list), f"Failed: {str(e)}", 'failed', bot_run_id)
         print(f"❌ Failed to send batch email to {to}: {e}")
         raise  # Re-raise to handle in calling function
