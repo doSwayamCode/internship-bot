@@ -5,7 +5,7 @@ import time
 import json
 from urllib.parse import urljoin, quote
 
-# Comprehensive keywords for filtering (based on your requirements)
+# Comprehensive keywords for filtering (including tech and non-tech roles)
 TECH_KEYWORDS = [
     # Software Engineering
     'software engineer', 'software developer', 'programming', 'coding', 'python', 'java', 
@@ -27,20 +27,66 @@ TECH_KEYWORDS = [
     'graphic design', 'web design', 'figma', 'adobe', 'sketch', 'wireframe',
     'prototype', 'user research', 'usability', 'interaction design',
     
-    # Business Development
+    # Business Development & Marketing
     'business development', 'business analyst', 'business intelligence', 'strategy',
     'market research', 'sales', 'marketing', 'product management', 'product manager',
     'digital marketing', 'social media', 'content marketing', 'growth hacking',
+    'brand management', 'advertising', 'promotion', 'campaign', 'lead generation',
+    'customer acquisition', 'business strategy', 'market analysis', 'competitive analysis',
+    
+    # Finance & Accounting
+    'finance', 'financial analyst', 'accounting', 'investment', 'banking', 'equity research',
+    'financial modeling', 'portfolio management', 'risk management', 'audit', 'taxation',
+    'corporate finance', 'financial planning', 'budget', 'cost analysis', 'valuation',
+    'trading', 'wealth management', 'insurance', 'credit analysis', 'financial services',
+    
+    # Human Resources
+    'human resource', 'hr', 'talent acquisition', 'recruitment', 'hiring', 'staffing',
+    'employee relations', 'compensation', 'benefits', 'training', 'learning development',
+    'organizational development', 'performance management', 'payroll', 'hr analytics',
+    
+    # Operations & Supply Chain
+    'operations', 'supply chain', 'logistics', 'procurement', 'vendor management',
+    'process improvement', 'quality assurance', 'production', 'manufacturing',
+    'project management', 'program management', 'operations research', 'lean', 'six sigma',
+    
+    # Consulting & Strategy
+    'consulting', 'strategy consulting', 'management consulting', 'business consulting',
+    'strategy', 'strategic planning', 'business transformation', 'change management',
+    'process consulting', 'operational consulting', 'advisory', 'client engagement',
+    
+    # Sales & Customer Success
+    'sales', 'sales development', 'account management', 'customer success', 'customer service',
+    'client relations', 'business development', 'partnership', 'channel sales',
+    'inside sales', 'field sales', 'retail', 'customer experience', 'crm',
+    
+    # Content & Communications
+    'content', 'content writing', 'copywriting', 'communications', 'public relations',
+    'journalism', 'editorial', 'blogging', 'social media management', 'community management',
+    'marketing communications', 'internal communications', 'corporate communications',
+    
+    # Legal & Compliance
+    'legal', 'law', 'compliance', 'regulatory', 'contract', 'legal research',
+    'paralegal', 'corporate law', 'intellectual property', 'litigation', 'legal affairs',
+    
+    # Research & Analytics (Non-Tech)
+    'research', 'market research', 'policy research', 'economic research', 'survey research',
+    'primary research', 'secondary research', 'research analyst', 'insights', 'analytics',
     
     # Non-Tech Specialized Roles
     'esg', 'environmental social governance', 'sustainability', 'ccass', 'compliance',
     'environment engineer', 'environmental engineering', 'climate', 'carbon',
     'renewable energy', 'green technology', 'corporate social responsibility',
-    'risk management', 'audit', 'finance', 'consulting', 'research', 'policy'
+    'risk management', 'audit', 'finance', 'consulting', 'research', 'policy',
+    
+    # General Business & Admin
+    'business', 'administration', 'office', 'coordinator', 'assistant', 'associate',
+    'analyst', 'specialist', 'executive', 'manager', 'trainee', 'graduate',
+    'entry level', 'fresher', 'junior', 'intern', 'internship'
 ]
 
-def is_tech_related(title, company=""):
-    """Check if internship is tech-related based on title and company"""
+def is_relevant_internship(title, company=""):
+    """Check if internship is relevant based on title and company (includes both tech and non-tech roles)"""
     text_to_check = f"{title} {company}".lower()
     
     for keyword in TECH_KEYWORDS:
@@ -52,8 +98,9 @@ def scrape_internshala():
     """Scrape tech internships from Internshala"""
     print("Scraping Internshala...")
     
-    # Search for specific categories on Internshala
+    # Search for specific categories on Internshala (both tech and non-tech)
     tech_urls = [
+        # Tech categories
         "https://internshala.com/internships/computer-science",
         "https://internshala.com/internships/web-development", 
         "https://internshala.com/internships/software-development",
@@ -63,7 +110,21 @@ def scrape_internshala():
         "https://internshala.com/internships/machine-learning",
         "https://internshala.com/internships/artificial-intelligence",
         "https://internshala.com/internships/ui-ux-design",
+        
+        # Non-tech categories
         "https://internshala.com/internships/business-development",
+        "https://internshala.com/internships/marketing",
+        "https://internshala.com/internships/finance",
+        "https://internshala.com/internships/human-resources",
+        "https://internshala.com/internships/sales",
+        "https://internshala.com/internships/content-writing",
+        "https://internshala.com/internships/consulting",
+        "https://internshala.com/internships/operations",
+        "https://internshala.com/internships/research",
+        "https://internshala.com/internships/analytics",
+        "https://internshala.com/internships/administration",
+        "https://internshala.com/internships/business-analyst",
+        
         "https://internshala.com/internships"  # General search as fallback
     ]
     
@@ -90,8 +151,8 @@ def scrape_internshala():
                 company_tag = listing.select_one(".company-name")
                 company = company_tag.get_text(strip=True) if company_tag else "Unknown Company"
 
-                # Only include relevant internships
-                if not is_tech_related(title, company):
+                # Include relevant internships (broader criteria now)
+                if not (is_relevant_internship(title, company) or 'intern' in title.lower() or 'trainee' in title.lower()):
                     continue
 
                 # Link
@@ -157,683 +218,9 @@ def scrape_internshala():
         if len(results) >= 20:
             break
 
-    print(f"� Internshala: Found {len(results)} internships")
+    print(f"📦 Internshala: Found {len(results)} internships")
     return results
 
-
-def scrape_naukri():
-    """Scrape internships from Naukri.com - Improved version"""
-    print("Scraping Naukri...")
-    
-    results = []
-    
-    try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none',
-            'Cache-Control': 'max-age=0'
-        }
-        
-        # Use more specific Naukri search URLs
-        base_searches = [
-            "software+developer+internship",
-            "data+science+internship", 
-            "python+internship",
-            "machine+learning+internship",
-            "business+development+internship",
-            "ui+ux+internship"
-        ]
-        
-        for search_term in base_searches:
-            try:
-                # Use Naukri's search API endpoint format
-                url = f"https://www.naukri.com/internship-jobs?k={search_term}&l=India"
-                print(f"   Checking: {search_term}")
-                
-                session = requests.Session()
-                session.headers.update(headers)
-                
-                response = session.get(url, timeout=15)
-                
-                if response.status_code != 200:
-                    print(f"   Status code: {response.status_code}")
-                    continue
-                
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Try multiple selectors for Naukri listings (they change frequently)
-                selectors_to_try = [
-                    ".srp-jobtuple-wrapper",
-                    ".jobTuple",
-                    ".jobTupleHeader", 
-                    "[data-job-id]",
-                    ".row1",
-                    ".jobTupleWrap",
-                    ".list",
-                    ".job-summary"
-                ]
-                
-                listings = []
-                for selector in selectors_to_try:
-                    listings = soup.select(selector)
-                    if listings:
-                        print(f"   Found {len(listings)} listings with selector: {selector}")
-                        break
-                
-                # If no job listings found, try extracting from script tags (JSON data)
-                if not listings:
-                    script_tags = soup.find_all('script', type='application/ld+json')
-                    for script in script_tags:
-                        try:
-                            data = json.loads(script.string)
-                            if isinstance(data, dict) and 'jobPosting' in str(data).lower():
-                                # Extract job data from JSON-LD
-                                if 'title' in data and 'hiringOrganization' in data:
-                                    title = data.get('title', '')
-                                    company = data.get('hiringOrganization', {}).get('name', 'Unknown')
-                                    
-                                    if is_tech_related(title, company) or 'intern' in title.lower():
-                                        job_id = abs(hash(title + company + "naukri")) % 1000000
-                                        results.append({
-                                            "id": f"naukri_{job_id}",
-                                            "title": title,
-                                            "company": company,
-                                            "link": data.get('url', url),
-                                            "source": "Naukri"
-                                        })
-                                        print(f"✅ Found (JSON): {title} at {company}")
-                        except:
-                            continue
-                
-                # Process HTML listings
-                for listing in listings[:10]:
-                    try:
-                        # Try multiple approaches to extract title
-                        title = None
-                        title_selectors = [
-                            ".title a",
-                            ".jobTupleHeader .title a",
-                            "h3 a",
-                            "h2 a",
-                            "[data-job-title]",
-                            ".job-title",
-                            "a[title]"
-                        ]
-                        
-                        for selector in title_selectors:
-                            title_elem = listing.select_one(selector)
-                            if title_elem:
-                                title = title_elem.get_text(strip=True) or title_elem.get('title', '').strip()
-                                if title and len(title) > 5:
-                                    break
-                        
-                        if not title:
-                            continue
-                        
-                        # Extract company
-                        company = None
-                        company_selectors = [
-                            ".subTitle a",
-                            ".companyName",
-                            ".comp-name",
-                            "[data-company]",
-                            ".company"
-                        ]
-                        
-                        for selector in company_selectors:
-                            company_elem = listing.select_one(selector)
-                            if company_elem:
-                                company = company_elem.get_text(strip=True)
-                                if company:
-                                    break
-                        
-                        company = company or "Company Name Not Listed"
-                        
-                        # Check relevance
-                        if not (is_tech_related(title, company) or 'intern' in title.lower()):
-                            continue
-                        
-                        # Extract link
-                        link_elem = listing.select_one("a") or listing.select_one(".title a")
-                        link = link_elem.get('href', '#') if link_elem else '#'
-                        
-                        if link.startswith('/'):
-                            link = "https://www.naukri.com" + link
-                        elif not link.startswith('http'):
-                            link = f"https://www.naukri.com/job-listings-{abs(hash(title + company)) % 100000}"
-                        
-                        job_id = abs(hash(title + company + "naukri")) % 1000000
-                        
-                        internship_data = {
-                            "id": f"naukri_{job_id}",
-                            "title": title,
-                            "company": company,
-                            "link": link,
-                            "source": "Naukri",
-                            "posted_date": "Not specified",
-                            "deadline": "Not specified"
-                        }
-                        
-                        if not any(existing['id'] == internship_data['id'] for existing in results):
-                            results.append(internship_data)
-                            print(f"✅ Found: {title} at {company}")
-                            
-                    except Exception as e:
-                        continue
-                
-                time.sleep(1)  # Be respectful to the server
-                        
-            except Exception as e:
-                print(f"⚠️ Error with search term {search_term}: {e}")
-                continue
-                
-            if len(results) >= 10:
-                break
-        
-        # Alternative approach: Use direct category URLs and different search methods
-        if len(results) < 3:
-            try:
-                # Try job aggregator sites that list Naukri jobs
-                alternative_sources = [
-                    "https://www.foundit.in/seeker/search/jobs?query=internship&locations=India",
-                    "https://www.careerpower.in/internship-jobs.html"
-                ]
-                
-                for alt_url in alternative_sources:
-                    try:
-                        response = requests.get(alt_url, headers=headers, timeout=15)
-                        soup = BeautifulSoup(response.text, 'html.parser')
-                        
-                        # Look for any internship links
-                        all_links = soup.find_all('a', href=True)
-                        for link in all_links[:15]:
-                            text = link.get_text(strip=True)
-                            href = link.get('href', '')
-                            
-                            if (len(text) > 10 and 
-                                ('intern' in text.lower() or is_tech_related(text)) and
-                                ('job' in href or 'internship' in href)):
-                                
-                                job_id = abs(hash(text + "naukri_alt")) % 1000000
-                                
-                                if not any(existing['id'] == f"naukri_{job_id}" for existing in results):
-                                    results.append({
-                                        "id": f"naukri_{job_id}",
-                                        "title": text,
-                                        "company": "Various Companies",
-                                        "link": urljoin(alt_url, href),
-                                        "source": "Naukri/Alternative",
-                                        "posted_date": "Not specified",
-                                        "deadline": "Not specified"
-                                    })
-                                    print(f"✅ Found (alternative): {text}")
-                                    
-                                    if len(results) >= 3:
-                                        break
-                        
-                        if len(results) >= 3:
-                            break
-                            
-                    except Exception as e:
-                        continue
-                        
-            except Exception as e:
-                print(f"⚠️ Naukri alternative approach failed: {e}")
-        
-        # Final fallback: Create sample listings if no results found
-        if len(results) == 0:
-            print("   ℹ️ No direct results found - Naukri may have anti-bot protection")
-            # Don't create fake results, just acknowledge the limitation
-                
-    except Exception as e:
-        print(f"⚠️ Error scraping Naukri: {e}")
-    
-    print(f"📦 Naukri: Found {len(results)} internships")
-    return results
-
-
-def scrape_unstop():
-    """Scrape internships from Unstop (formerly Dare2Compete) - Improved version"""
-    print("🔍 Scraping Unstop...")
-    
-    results = []
-    
-    try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'none'
-        }
-        
-        # Unstop URLs with better targeting
-        unstop_urls = [
-            "https://unstop.com/jobs?opportunity_type=internship",
-            "https://unstop.com/internships?opportunity_type=internship",
-            "https://unstop.com/opportunities?opportunity_type=internship&job_category=engineering",
-            "https://unstop.com/opportunities?opportunity_type=internship&job_category=computer-science",
-            "https://unstop.com/opportunities?search=software%20engineer%20internship",
-            "https://unstop.com/opportunities?search=data%20science%20internship"
-        ]
-        
-        for url in unstop_urls:
-            try:
-                print(f"   Checking: {url}")
-                
-                session = requests.Session()
-                session.headers.update(headers)
-                
-                response = session.get(url, timeout=15)
-                
-                if response.status_code != 200:
-                    print(f"   Status code: {response.status_code}")
-                    continue
-                
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Try multiple selectors for Unstop listings
-                selectors_to_try = [
-                    "[data-testid='opportunity-card']",
-                    ".opportunity-card",
-                    ".job-card",
-                    ".card",
-                    ".listing-card",
-                    "[class*='opportunity']",
-                    "[class*='internship']",
-                    "article",
-                    ".opportunityCard",
-                    ".opp-card"
-                ]
-                
-                listings = []
-                for selector in selectors_to_try:
-                    listings = soup.select(selector)
-                    if listings:
-                        print(f"   Found {len(listings)} listings with selector: {selector}")
-                        break
-                
-                # Alternative: Look for JSON data in script tags
-                if not listings:
-                    scripts = soup.find_all('script', type='application/json')
-                    for script in scripts:
-                        try:
-                            data = json.loads(script.string)
-                            if isinstance(data, dict) and 'opportunities' in str(data).lower():
-                                # Extract from JSON if available
-                                pass  # Implement if needed
-                        except:
-                            continue
-                
-                for listing in listings[:12]:
-                    try:
-                        # Extract title with multiple approaches
-                        title = None
-                        title_selectors = [
-                            "[data-testid='opportunity-title']",
-                            ".opportunity-title",
-                            ".job-title",
-                            ".title",
-                            "h3",
-                            "h2", 
-                            "h4",
-                            "a[title]",
-                            ".card-title",
-                            "[class*='title']"
-                        ]
-                        
-                        for selector in title_selectors:
-                            title_elem = listing.select_one(selector)
-                            if title_elem:
-                                title = title_elem.get_text(strip=True) or title_elem.get('title', '').strip()
-                                if title and len(title) > 5:
-                                    break
-                        
-                        if not title:
-                            continue
-                        
-                        # Extract company
-                        company = None
-                        company_selectors = [
-                            "[data-testid='company-name']",
-                            ".company-name",
-                            ".company",
-                            ".organization",
-                            "[class*='company']",
-                            "[class*='org']",
-                            ".brand",
-                            ".organizer"
-                        ]
-                        
-                        for selector in company_selectors:
-                            company_elem = listing.select_one(selector)
-                            if company_elem:
-                                company = company_elem.get_text(strip=True)
-                                if company:
-                                    break
-                        
-                        company = company or "Company Name Not Listed"
-                        
-                        # Check relevance
-                        if not (is_tech_related(title, company) or 'intern' in title.lower()):
-                            continue
-                        
-                        # Extract link
-                        link_elem = listing.select_one("a") or listing.select_one(".title a")
-                        link = link_elem.get('href', '#') if link_elem else '#'
-                        
-                        if link.startswith('/'):
-                            link = "https://unstop.com" + link
-                        elif not link.startswith('http'):
-                            link = f"https://unstop.com/opportunity/{abs(hash(title + company)) % 100000}"
-                        
-                        job_id = abs(hash(title + company + "unstop")) % 1000000
-                        
-                        internship_data = {
-                            "id": f"unstop_{job_id}",
-                            "title": title,
-                            "company": company,
-                            "link": link,
-                            "source": "Unstop",
-                            "posted_date": "Not specified",
-                            "deadline": "Not specified"
-                        }
-                        
-                        if not any(existing['id'] == internship_data['id'] for existing in results):
-                            results.append(internship_data)
-                            print(f"✅ Found: {title} at {company}")
-                            
-                    except Exception as e:
-                        continue
-                
-                time.sleep(1)  # Be respectful
-                        
-            except Exception as e:
-                print(f"⚠️ Error scraping Unstop URL {url}: {e}")
-                continue
-            
-            if len(results) >= 10:
-                break
-        
-        # Fallback: Search for internship-related content
-        if len(results) < 3:
-            try:
-                fallback_url = "https://unstop.com/search?query=internship"
-                response = requests.get(fallback_url, headers=headers, timeout=15)
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Look for any internship-related links
-                all_links = soup.find_all('a', href=True)
-                for link in all_links[:30]:
-                    text = link.get_text(strip=True)
-                    href = link.get('href', '')
-                    
-                    if (len(text) > 10 and 
-                        ('intern' in text.lower() or is_tech_related(text)) and
-                        ('/internship' in href or '/opportunity' in href or '/jobs' in href)):
-                        
-                        job_id = abs(hash(text + "unstop_fallback")) % 1000000
-                        
-                        if not any(existing['id'] == f"unstop_{job_id}" for existing in results):
-                            results.append({
-                                "id": f"unstop_{job_id}",
-                                "title": text,
-                                "company": "Various Companies",
-                                "link": urljoin("https://unstop.com", href),
-                                "source": "Unstop",
-                                "posted_date": "Not specified",
-                                "deadline": "Not specified"
-                            })
-                            print(f"✅ Found (fallback): {text}")
-                            
-                            if len(results) >= 5:
-                                break
-                            
-            except Exception as e:
-                print(f"⚠️ Unstop fallback failed: {e}")
-                
-    except Exception as e:
-        print(f"⚠️ Error scraping Unstop: {e}")
-    
-    print(f"📦 Unstop: Found {len(results)} internships")
-    return results
-
-def scrape_glassdoor():
-    """Scrape internships from Indeed and LinkedIn (better alternatives to Glassdoor)"""
-    print("🔍 Scraping Indeed & Alternative Sources...")
-    
-    results = []
-    
-    try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate'
-        }
-        
-        # Indeed URLs (more reliable than Glassdoor)
-        indeed_searches = [
-            ("software+developer+internship", "India"),
-            ("data+science+internship", "India"),
-            ("python+internship", "India"),
-            ("ui+ux+internship", "India"),
-            ("business+development+internship", "India"),
-            ("machine+learning+internship", "India")
-        ]
-        
-        for search_term, location in indeed_searches:
-            try:
-                url = f"https://in.indeed.com/jobs?q={search_term}&l={location}&sort=date"
-                print(f"   Checking Indeed for: {search_term.replace('+', ' ')}")
-                
-                session = requests.Session()
-                session.headers.update(headers)
-                
-                response = session.get(url, timeout=15)
-                
-                if response.status_code != 200:
-                    print(f"   Status code: {response.status_code}")
-                    continue
-                
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Try multiple selectors for Indeed listings
-                selectors_to_try = [
-                    "[data-jk]",  # Primary Indeed job selector
-                    ".jobsearch-SerpJobCard",
-                    ".job_seen_beacon",
-                    ".result",
-                    ".slider_container .slider_item",
-                    "[class*='job']"
-                ]
-                
-                listings = []
-                for selector in selectors_to_try:
-                    listings = soup.select(selector)
-                    if listings:
-                        print(f"   Found {len(listings)} listings with selector: {selector}")
-                        break
-                
-                for listing in listings[:8]:
-                    try:
-                        # Extract title
-                        title = None
-                        title_selectors = [
-                            "h2 a span[title]",
-                            "h2 a[data-jk]",
-                            ".jobTitle a",
-                            ".jobTitle span",
-                            "a[data-jk] span",
-                            "h2 span",
-                            "[data-testid='job-title']"
-                        ]
-                        
-                        for selector in title_selectors:
-                            title_elem = listing.select_one(selector)
-                            if title_elem:
-                                title = title_elem.get_text(strip=True) or title_elem.get('title', '').strip()
-                                if title and len(title) > 5:
-                                    break
-                        
-                        if not title:
-                            continue
-                        
-                        # Extract company
-                        company = None
-                        company_selectors = [
-                            "[data-testid='company-name']",
-                            ".companyName",
-                            ".company",
-                            "span.companyName a",
-                            "span.companyName"
-                        ]
-                        
-                        for selector in company_selectors:
-                            company_elem = listing.select_one(selector)
-                            if company_elem:
-                                company = company_elem.get_text(strip=True)
-                                if company:
-                                    break
-                        
-                        company = company or "Company Name Not Listed"
-                        
-                        # Check relevance
-                        if not (is_tech_related(title, company) or 'intern' in title.lower()):
-                            continue
-                        
-                        # Extract link
-                        link_elem = listing.select_one("h2 a") or listing.select_one("a[data-jk]")
-                        link = link_elem.get('href', '#') if link_elem else '#'
-                        
-                        if link.startswith('/'):
-                            link = "https://in.indeed.com" + link
-                        elif not link.startswith('http'):
-                            # Generate Indeed link format
-                            jk = listing.get('data-jk', '') or abs(hash(title + company)) % 1000000
-                            link = f"https://in.indeed.com/viewjob?jk={jk}"
-                        
-                        job_id = abs(hash(title + company + "indeed")) % 1000000
-                        
-                        internship_data = {
-                            "id": f"indeed_{job_id}",
-                            "title": title,
-                            "company": company,
-                            "link": link,
-                            "source": "Indeed",
-                            "posted_date": "Not specified",
-                            "deadline": "Not specified"
-                        }
-                        
-                        if not any(existing['id'] == internship_data['id'] for existing in results):
-                            results.append(internship_data)
-                            print(f"✅ Found: {title} at {company}")
-                            
-                    except Exception as e:
-                        continue
-                
-                time.sleep(1)  # Rate limiting
-                        
-            except Exception as e:
-                print(f"⚠️ Error with Indeed search {search_term}: {e}")
-                continue
-                
-            if len(results) >= 8:
-                break
-        
-        # Try AngelList/Wellfound for startup internships
-        if len(results) < 5:
-            try:
-                angel_url = "https://angel.co/jobs"
-                response = requests.get(angel_url, headers=headers, timeout=15)
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Look for job listings on AngelList
-                job_links = soup.find_all('a', href=True)
-                for link in job_links[:20]:
-                    text = link.get_text(strip=True)
-                    href = link.get('href', '')
-                    
-                    if (len(text) > 10 and 
-                        ('intern' in text.lower() or is_tech_related(text)) and
-                        ('/jobs/' in href or '/job/' in href)):
-                        
-                        job_id = abs(hash(text + "angel")) % 1000000
-                        
-                        if not any(existing['id'] == f"angel_{job_id}" for existing in results):
-                            results.append({
-                                "id": f"angel_{job_id}",
-                                "title": text,
-                                "company": "Startup Companies",
-                                "link": urljoin("https://angel.co", href),
-                                "source": "AngelList",
-                                "posted_date": "Not specified",
-                                "deadline": "Not specified"
-                            })
-                            print(f"✅ Found (AngelList): {text}")
-                            
-                            if len(results) >= 8:
-                                break
-                            
-            except Exception as e:
-                print(f"⚠️ AngelList scraping failed: {e}")
-        
-        # Try Freshersworld as additional source
-        if len(results) < 5:
-            try:
-                fresher_url = "https://www.freshersworld.com/internships"
-                response = requests.get(fresher_url, headers=headers, timeout=15)
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Look for job listings
-                job_elements = soup.find_all('a', 'div', class_=lambda x: x and ('job' in x.lower() or 'intern' in x.lower()))
-                for element in job_elements[:15]:
-                    text = element.get_text(strip=True)
-                    
-                    if (len(text) > 10 and 
-                        ('intern' in text.lower() or is_tech_related(text))):
-                        
-                        job_id = abs(hash(text + "fresher")) % 1000000
-                        
-                        if not any(existing['id'] == f"fresher_{job_id}" for existing in results):
-                            href = element.get('href', '') if element.name == 'a' else '#'
-                            link = urljoin("https://www.freshersworld.com", href) if href else "https://www.freshersworld.com/internships"
-                            
-                            results.append({
-                                "id": f"fresher_{job_id}",
-                                "title": text,
-                                "company": "Various Companies",
-                                "link": link,
-                                "source": "FreshersWorld",
-                                "posted_date": "Not specified",
-                                "deadline": "Not specified"
-                            })
-                            print(f"✅ Found (FreshersWorld): {text}")
-                            
-                            if len(results) >= 8:
-                                break
-                            
-            except Exception as e:
-                print(f"⚠️ FreshersWorld scraping failed: {e}")
-                
-    except Exception as e:
-        print(f"⚠️ Error in alternative sources scraping: {e}")
-    
-    print(f"📦 Indeed & Alternative Sources: Found {len(results)} internships")
-    return results
 
 def scrape_linkedin_jobs():
     """Scrape publicly available job listings from LinkedIn"""
@@ -850,13 +237,23 @@ def scrape_linkedin_jobs():
             'Connection': 'keep-alive'
         }
         
-        # LinkedIn job search URLs for internships
+        # LinkedIn job search URLs for internships (both tech and non-tech)
         linkedin_searches = [
+            # Tech searches
             "software%20engineer%20internship",
             "data%20science%20internship", 
             "python%20internship",
             "machine%20learning%20internship",
-            "business%20development%20internship"
+            
+            # Non-tech searches
+            "business%20development%20internship",
+            "marketing%20internship",
+            "finance%20internship",
+            "consulting%20internship",
+            "sales%20internship",
+            "human%20resources%20internship",
+            "operations%20internship",
+            "research%20internship"
         ]
         
         for search_term in linkedin_searches:
@@ -930,7 +327,7 @@ def scrape_linkedin_jobs():
                         company = company or "Company Name Not Listed"
                         
                         # Check relevance
-                        if not (is_tech_related(title, company) or 'intern' in title.lower()):
+                        if not (is_relevant_internship(title, company) or 'intern' in title.lower()):
                             continue
                         
                         # Extract link
@@ -1014,12 +411,21 @@ def scrape_timesjobs():
             'Accept-Language': 'en-US,en;q=0.5'
         }
         
-        # TimesJobs search URLs
+        # TimesJobs search URLs (both tech and non-tech)
         timesjobs_searches = [
+            # Tech searches
             "software+developer+intern",
             "data+science+intern",
             "python+intern",
-            "business+development+intern"
+            
+            # Non-tech searches
+            "business+development+intern",
+            "marketing+intern",
+            "finance+intern", 
+            "sales+intern",
+            "hr+intern",
+            "consulting+intern",
+            "operations+intern"
         ]
         
         for search_term in timesjobs_searches:
@@ -1054,7 +460,7 @@ def scrape_timesjobs():
                         company = company_elem.get_text(strip=True) if company_elem else "Company Name Not Listed"
                         
                         # Check relevance
-                        if not (is_tech_related(title, company) or 'intern' in title.lower()):
+                        if not (is_relevant_internship(title, company) or 'intern' in title.lower()):
                             continue
                         
                         # Extract link
@@ -1125,331 +531,17 @@ def scrape_timesjobs():
     return results
 
 
-def scrape_shine():
-    """Scrape internships from Shine.com"""
-    print("🔍 Scraping Shine...")
-    
-    results = []
-    
-    try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-        }
-        
-        # Shine search URLs
-        shine_searches = [
-            "software+developer+internship",
-            "data+science+internship", 
-            "python+internship"
-        ]
-        
-        for search_term in shine_searches:
-            try:
-                url = f"https://www.shine.com/job-search/{search_term}/jobs-in-india"
-                print(f"   Checking Shine for: {search_term.replace('+', ' ')}")
-                
-                response = requests.get(url, headers=headers, timeout=15)
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # Shine listing selectors
-                listings = soup.select(".jobCard") or soup.select(".job-card") or soup.select(".result-set")
-                
-                for listing in listings[:5]:
-                    try:
-                        # Extract title
-                        title_elem = listing.select_one("h2 a") or listing.select_one(".job-title a") or listing.select_one("a")
-                        if not title_elem:
-                            continue
-                        
-                        title = title_elem.get_text(strip=True)
-                        if not title or len(title) < 5:
-                            continue
-                        
-                        # Extract company
-                        company_elem = listing.select_one(".company") or listing.select_one(".comp-name")
-                        company = company_elem.get_text(strip=True) if company_elem else "Company Name Not Listed"
-                        
-                        # Check relevance
-                        if not (is_tech_related(title, company) or 'intern' in title.lower()):
-                            continue
-                        
-                        # Extract link
-                        link = title_elem.get('href', '#')
-                        if link.startswith('/'):
-                            link = "https://www.shine.com" + link
-                        elif not link.startswith('http'):
-                            link = f"https://www.shine.com/job/{abs(hash(title + company)) % 100000}"
-                        
-                        job_id = abs(hash(title + company + "shine")) % 1000000
-                        
-                        internship_data = {
-                            "id": f"shine_{job_id}",
-                            "title": title,
-                            "company": company,
-                            "link": link,
-                            "source": "Shine",
-                            "posted_date": "Not specified",
-                            "deadline": "Not specified"
-                        }
-                        
-                        if not any(existing['id'] == internship_data['id'] for existing in results):
-                            results.append(internship_data)
-                            print(f"✅ Found: {title} at {company}")
-                            
-                    except Exception as e:
-                        continue
-                
-                time.sleep(1)
-                        
-            except Exception as e:
-                print(f"⚠️ Error with Shine search {search_term}: {e}")
-                continue
-            
-            if len(results) >= 4:
-                break
-                
-    except Exception as e:
-        print(f"⚠️ Error scraping Shine: {e}")
-    
-    print(f"📦 Shine: Found {len(results)} internships")
-    return results
-
-def scrape_foundit():
-    """Scrape Foundit.in (formerly Monster India)"""
-    print("🔍 Scraping Foundit.in...")
-    internships = []
-    
-    search_terms = ['software engineer intern', 'data science intern', 'python intern', 
-                   'web developer intern', 'business development intern']
-    
-    for term in search_terms:
-        try:
-            url = f"https://www.foundit.in/srp/results?query={quote(term)}&locations=All+India"
-            print(f"   Checking Foundit for: {term}")
-            
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-            
-            response = requests.get(url, headers=headers, timeout=10)
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.content, 'html.parser')
-                
-                # Foundit job cards
-                job_cards = soup.find_all(['div'], class_=['jobTuple', 'job-tuple', 'srpResultCardContainer'])
-                
-                for card in job_cards[:5]:  # Limit to first 5 results
-                    try:
-                        title_elem = card.find(['a', 'h3'], class_=['jobTitle', 'job-title'])
-                        company_elem = card.find(['span', 'div'], class_=['companyName', 'company-name'])
-                        link_elem = card.find('a', href=True)
-                        
-                        if title_elem and company_elem:
-                            title = title_elem.get_text(strip=True)
-                            company = company_elem.get_text(strip=True)
-                            link = urljoin("https://www.foundit.in", link_elem['href']) if link_elem else url
-                            
-                            if is_tech_related(title, company):
-                                internships.append({
-                                    'id': f"foundit_{hash(title + company)}",
-                                    'title': title,
-                                    'company': company,
-                                    'link': link,
-                                    'source': 'Foundit',
-                                    'posted_date': 'Not specified'
-                                })
-                                print(f"✅ Found: {title} at {company}")
-                    except Exception as e:
-                        continue
-            
-            time.sleep(2)  # Respectful delay
-            
-        except Exception as e:
-            print(f"   Error searching {term}: {str(e)}")
-            continue
-    
-    print(f"📦 Foundit: Found {len(internships)} internships")
-    return internships
-
-def scrape_freshersworld():
-    """Scrape FreshersWorld.com"""
-    print("🔍 Scraping FreshersWorld...")
-    internships = []
-    
-    try:
-        url = "https://www.freshersworld.com/jobs/jobsearch/internship-jobs"
-        print(f"   Checking: {url}")
-        
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # FreshersWorld job listings
-            job_cards = soup.find_all(['div', 'article'], class_=['job-container', 'job-card', 'listContainer'])
-            
-            for card in job_cards[:10]:  # Limit to first 10
-                try:
-                    title_elem = card.find(['h3', 'h4', 'a'], class_=['job-title', 'jobTitle'])
-                    company_elem = card.find(['span', 'div'], class_=['company', 'companyName'])
-                    link_elem = card.find('a', href=True)
-                    
-                    if title_elem and company_elem:
-                        title = title_elem.get_text(strip=True)
-                        company = company_elem.get_text(strip=True)
-                        link = urljoin("https://www.freshersworld.com", link_elem['href']) if link_elem else url
-                        
-                        if is_tech_related(title, company):
-                            internships.append({
-                                'id': f"freshersworld_{hash(title + company)}",
-                                'title': title,
-                                'company': company,
-                                'link': link,
-                                'source': 'FreshersWorld',
-                                'posted_date': 'Not specified'
-                            })
-                            print(f"✅ Found: {title} at {company}")
-                except Exception as e:
-                    continue
-                    
-    except Exception as e:
-        print(f"   Error scraping FreshersWorld: {str(e)}")
-    
-    print(f"📦 FreshersWorld: Found {len(internships)} internships")
-    return internships
-
-def scrape_instahyre():
-    """Scrape Instahyre.com"""
-    print("🔍 Scraping Instahyre...")
-    internships = []
-    
-    try:
-        url = "https://www.instahyre.com/search-jobs/?q=intern"
-        print(f"   Checking: {url}")
-        
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Instahyre job cards
-            job_cards = soup.find_all(['div'], class_=['job-card', 'opportunity-card'])
-            
-            for card in job_cards[:8]:  # Limit to first 8
-                try:
-                    title_elem = card.find(['h2', 'h3'], class_=['job-title'])
-                    company_elem = card.find(['span', 'div'], class_=['company-name'])
-                    link_elem = card.find('a', href=True)
-                    
-                    if title_elem and company_elem:
-                        title = title_elem.get_text(strip=True)
-                        company = company_elem.get_text(strip=True)
-                        link = urljoin("https://www.instahyre.com", link_elem['href']) if link_elem else url
-                        
-                        if is_tech_related(title, company):
-                            internships.append({
-                                'id': f"instahyre_{hash(title + company)}",
-                                'title': title,
-                                'company': company,
-                                'link': link,
-                                'source': 'Instahyre',
-                                'posted_date': 'Not specified'
-                            })
-                            print(f"✅ Found: {title} at {company}")
-                except Exception as e:
-                    continue
-                    
-    except Exception as e:
-        print(f"   Error scraping Instahyre: {str(e)}")
-    
-    print(f"📦 Instahyre: Found {len(internships)} internships")
-    return internships
-
-def scrape_wellfound():
-    """Scrape Wellfound (formerly AngelList)"""
-    print("🔍 Scraping Wellfound...")
-    internships = []
-    
-    try:
-        url = "https://wellfound.com/jobs?role=internship"
-        print(f"   Checking: {url}")
-        
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Wellfound job listings
-            job_cards = soup.find_all(['div'], class_=['job', 'startup-job'])
-            
-            for card in job_cards[:8]:  # Limit to first 8
-                try:
-                    title_elem = card.find(['h2', 'h3', 'a'])
-                    company_elem = card.find(['span'], class_=['company'])
-                    link_elem = card.find('a', href=True)
-                    
-                    if title_elem and company_elem:
-                        title = title_elem.get_text(strip=True)
-                        company = company_elem.get_text(strip=True)
-                        link = urljoin("https://wellfound.com", link_elem['href']) if link_elem else url
-                        
-                        if is_tech_related(title, company):
-                            internships.append({
-                                'id': f"wellfound_{hash(title + company)}",
-                                'title': title,
-                                'company': company,
-                                'link': link,
-                                'source': 'Wellfound',
-                                'posted_date': 'Not specified'
-                            })
-                            print(f"✅ Found: {title} at {company}")
-                except Exception as e:
-                    continue
-                    
-    except Exception as e:
-        print(f"   Error scraping Wellfound: {str(e)}")
-    
-    print(f"📦 Wellfound: Found {len(internships)} internships")
-    return internships
-
-# ...existing code...
-
 def scrape_all():
-    """Scrape from all sources and combine results"""
+    """Scrape from all working sources and combine results"""
     print("\nStarting comprehensive internship search...")
     
     all_results = []
     
-    # Scrape from all sources (with error handling for each)
+    # Scrape from working sources only (with error handling for each)
     try:
         all_results.extend(scrape_internshala())
     except Exception as e:
         print(f"⚠️ Internshala failed: {e}")
-    
-    try:
-        all_results.extend(scrape_naukri())
-    except Exception as e:
-        print(f"⚠️ Naukri failed: {e}")
-    
-    try:
-        all_results.extend(scrape_unstop())
-    except Exception as e:
-        print(f"⚠️ Unstop failed: {e}")
-    
-    try:
-        all_results.extend(scrape_glassdoor())
-    except Exception as e:
-        print(f"⚠️ Indeed/Alternative sources failed: {e}")
     
     try:
         all_results.extend(scrape_linkedin_jobs())
@@ -1460,55 +552,6 @@ def scrape_all():
         all_results.extend(scrape_timesjobs())
     except Exception as e:
         print(f"⚠️ TimesJobs failed: {e}")
-    
-    try:
-        all_results.extend(scrape_shine())
-    except Exception as e:
-        print(f"⚠️ Shine failed: {e}")
-    
-    try:
-        all_results.extend(scrape_foundit())
-    except Exception as e:
-        print(f"⚠️ Foundit failed: {e}")
-    
-    try:
-        all_results.extend(scrape_freshersworld())
-    except Exception as e:
-        print(f"⚠️ FreshersWorld failed: {e}")
-    
-    try:
-        all_results.extend(scrape_instahyre())
-    except Exception as e:
-        print(f"⚠️ Instahyre failed: {e}")
-    
-    try:
-        all_results.extend(scrape_wellfound())
-    except Exception as e:
-        print(f"⚠️ Wellfound failed: {e}")
-    
-    # Additional job portals would go here
-    # (Keeping for future expansion)
-    
-    # New websites
-    try:
-        all_results.extend(scrape_foundit())
-    except Exception as e:
-        print(f"⚠️ Foundit failed: {e}")
-    
-    try:
-        all_results.extend(scrape_freshersworld())
-    except Exception as e:
-        print(f"⚠️ FreshersWorld failed: {e}")
-    
-    try:
-        all_results.extend(scrape_instahyre())
-    except Exception as e:
-        print(f"⚠️ Instahyre failed: {e}")
-    
-    try:
-        all_results.extend(scrape_wellfound())
-    except Exception as e:
-        print(f"⚠️ Wellfound failed: {e}")
     
     # Remove duplicates by job id and similar titles
     unique_results = {}

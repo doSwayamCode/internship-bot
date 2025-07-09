@@ -1,0 +1,40 @@
+name: Process Unsubscribe Requests
+
+on:
+  schedule:
+    # Run every day at 9 AM UTC to check for new unsubscribes
+    - cron: "0 9 * * *"
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  process-unsubscribes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+
+      - name: Process Google Sheets responses
+        env:
+          GOOGLE_SHEETS_API_KEY: ${{ secrets.GOOGLE_SHEETS_API_KEY }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+        run: |
+          python automated_unsubscribe_processor.py
+
+      - name: Commit updated unsubscribe list
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add unsubscribed_emails.json
+          git diff --staged --quiet || git commit -m "Auto-update unsubscribe list [skip ci]"
+          git push

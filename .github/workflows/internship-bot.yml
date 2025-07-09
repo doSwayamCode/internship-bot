@@ -31,8 +31,19 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
         run: |
-          # First collect new internships
+          # First process any unsubscribe requests (email-based)
+          python email_unsubscribe_processor.py || echo "Unsubscribe processing failed, continuing..."
+
+          # Then collect new internships
           python collect.py
 
-          # Then send batch if any new ones found
+          # Finally send batch if any new ones found (will automatically filter unsubscribed emails)
           python send_batch_email_only.py
+
+      - name: Commit unsubscribe updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add unsubscribed_emails.json unsubscribe_status.json
+          git diff --staged --quiet || git commit -m "Auto-update unsubscribe list [skip ci]"
+          git push || echo "No changes to commit"

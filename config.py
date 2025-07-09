@@ -1,5 +1,13 @@
 import os
 
+# Import unsubscribe functionality
+try:
+    from unsubscribe_manager import get_active_emails
+except ImportError:
+    # Fallback if unsubscribe_manager is not available
+    def get_active_emails(email_list):
+        return email_list
+
 # SMTP Configuration for Email Notifications
 SMTP_CONFIG = {
     "host": "smtp.gmail.com",
@@ -17,11 +25,12 @@ else:
     # Fallback to hardcoded list (local development) - REPLACE WITH YOUR EMAILS
     email_list = ["recipient1@example.com", "recipient2@example.com"]
 
-SUBSCRIBERS = {
-    "emails": email_list
-}
+# Filter out unsubscribed emails
+active_email_list = get_active_emails(email_list)
 
-# ...existing code...
+SUBSCRIBERS = {
+    "emails": active_email_list
+}
 
 # Custom message template for batched internships
 BATCH_MESSAGE_TEMPLATE = """🚀 **Smart Internship Alert - Fresh Opportunities Found!** 
@@ -45,11 +54,11 @@ Great news! Our intelligent system has discovered {total_count} new internship o
 • Follow up professionally after 1 week
 
 📈 **System Stats:**
-• Sources Monitored: Internshala, LinkedIn, TimesJobs, Foundit, FreshersWorld, Instahyre, Wellfound & more
+• Sources Monitored: Internshala, LinkedIn, TimesJobs (reliable sources only)
 • Next Check: In 5 hours
 • Alert Frequency: Smart (only when new opportunities found)
 
-� **What's Next?**
+🔮 **What's Next?**
 You'll receive the next alert only when fresh opportunities are discovered. No spam, no repeats - just quality internships delivered to your inbox!
 
 Best of luck with your applications! 🌟
@@ -58,10 +67,12 @@ Best of luck with your applications! 🌟
 **Smart Internship Bot** | Powered by AI
 🤖 Automated • 🎯 Targeted • 📧 Spam-Free
 
-� *This intelligent system monitors the job market 24/7 so you don't have to.*"""
+💡 *This intelligent system monitors the job market 24/7 so you don't have to.*
 
-# Scheduling configuration
-BATCH_INTERVAL_HOURS = 5  # Check every 5 hours (2-3 times per day)
-MAX_EMAILS_PER_DAY = 3    # Maximum 3 emails per day to avoid spam
-MIN_HOURS_BETWEEN_EMAILS = 4  # Minimum 4 hours between emails
+---
+📧 **Manage Your Subscription:**
+• To unsubscribe from these alerts, click here: https://forms.gle/k9DHTg8w6Gg5LMh89
+• Or reply to this email with "UNSUBSCRIBE" in the subject line
+
+🔒 Your email privacy is protected - we never share your information."""
 

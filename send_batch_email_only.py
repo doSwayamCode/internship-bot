@@ -24,7 +24,7 @@ def send_batch_email_only():
     # Group by source for better organization
     sources = {}
     for job in batch:
-        source = job.get('source', 'Unknown')
+        source = job.get('source', 'Unknown') 
         if source not in sources:
             sources[source] = []
         sources[source].append(job)
