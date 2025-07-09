@@ -21,9 +21,12 @@ def process_unsubscribe_emails():
     
     if not username or not password:
         print("❌ Email credentials not configured")
+        print("ℹ️ This is normal if running locally without environment variables")
         return
     
     try:
+        print(f"🔍 Checking {username} inbox for unsubscribe requests...")
+        
         # Connect to Gmail
         mail = imaplib.IMAP4_SSL(imap_server, imap_port)
         mail.login(username, password)
@@ -74,6 +77,7 @@ def process_unsubscribe_emails():
         
     except Exception as e:
         print(f"❌ Error processing emails: {e}")
+        print("ℹ️ This is normal if no emails are available or credentials are incorrect")
 
 if __name__ == "__main__":
     print("📧 Email-Based Unsubscribe Processor")
