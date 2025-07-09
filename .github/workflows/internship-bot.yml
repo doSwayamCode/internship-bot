@@ -9,10 +9,14 @@ on:
 jobs:
   run-internship-bot:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Allow pushing to repository
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -40,23 +44,12 @@ jobs:
           # Finally send batch if any new ones found (will automatically filter unsubscribed emails)
           python send_batch_email_only.py
 
-      - name: Commit unsubscribe updates
+      - name: Save unsubscribe updates (optional)
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          
-          # Only add files that exist
+          # Just log the unsubscribe status, don't commit back
           if [ -f "unsubscribed_emails.json" ]; then
-            git add unsubscribed_emails.json
-          fi
-          if [ -f "unsubscribe_status.json" ]; then
-            git add unsubscribe_status.json
-          fi
-          
-          # Only commit if there are staged changes
-          if ! git diff --staged --quiet; then
-            git commit -m "Auto-update unsubscribe list [skip ci]"
-            git push
+            echo "📧 Unsubscribe list updated:"
+            cat unsubscribed_emails.json
           else
-            echo "No unsubscribe changes to commit"
+            echo "📭 No unsubscribes processed"
           fi
