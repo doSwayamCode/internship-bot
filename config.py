@@ -41,8 +41,6 @@ Great news! We have discovered {total_count} new internship opportunities that m
 
 {internships_list}
 
-🔮What Next?
-
 Best of luck with your applications we at Notes Shaala wish your success!
 
 ---
