@@ -553,6 +553,15 @@ def scrape_all():
     except Exception as e:
         print(f"⚠️ TimesJobs failed: {e}")
     
+    # NEW: Scrape company career opportunities
+    try:
+        from company_job_aggregator import scrape_company_careers
+        career_jobs = scrape_company_careers()
+        all_results.extend(career_jobs)
+        print(f"✅ Company Careers: Found {len(career_jobs)} positions")
+    except Exception as e:
+        print(f"⚠️ Company Careers failed: {e}")
+    
     # Remove duplicates by job id and similar titles
     unique_results = {}
     for job in all_results:

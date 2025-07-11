@@ -55,7 +55,7 @@ def load_subscribers():
 SUBSCRIBERS = load_subscribers()
 
 # Custom message template for batched internships
-BATCH_MESSAGE_TEMPLATE = """🚀Internship Alert - Notes Shaala! 
+BATCH_MESSAGE_TEMPLATE = """🚀Internships Alert - Intern wala! 
 
 hi,
 
@@ -75,5 +75,5 @@ Manage Your Subscription:
 
 
 🔒 Your email privacy is protected - we never share it.
-Team Notes Shaala"""
+- Thanks for using Intern wala"""
 

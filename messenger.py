@@ -31,13 +31,23 @@ def send_batch_email(to, internships_list, custom_message, smtp_cfg, bot_run_id=
         if isinstance(custom_message, str) and "{internships_list}" not in custom_message:
             final_message = custom_message
         else:
-            # Format the internships list for email if needed
+            # Format the internships list for email with enhanced details
             formatted_internships = ""
             for i, job in enumerate(internships_list, 1):
-                formatted_internships += f"{i}. {job['title']} at {job['company']}\n   Link: {job['link']}\n\n"
+                # Enhanced formatting with source and sector info
+                sector_info = f" | {job.get('sector', 'General')}" if job.get('sector') else ""
+                source_info = f" | via {job.get('source', 'Portal')}"
+                location_info = f" | {job.get('location', 'Location TBD')}"
+                
+                formatted_internships += f"{i}. {job['title']} at {job['company']}\n"
+                formatted_internships += f"   📍{location_info}{sector_info}{source_info}\n"
+                formatted_internships += f"   🔗 Link: {job['link']}\n\n"
             
             # Create the final message using the template
-            final_message = custom_message.format(internships_list=formatted_internships)
+            final_message = custom_message.format(
+                total_count=len(internships_list),
+                internships_list=formatted_internships
+            )
         
         subject = f"🎯 New Internship Alert - {len(internships_list)} Fresh Opportunities!"
         
