@@ -16,21 +16,43 @@ SMTP_CONFIG = {
     "pass": os.getenv("SMTP_PASS", "your-app-password-here")       # Replace with your Gmail app password
 }
 
-# Email Recipients - support both environment variable and hardcoded list
-recipient_emails = os.getenv("RECIPIENT_EMAILS")
-if recipient_emails:
-    # If environment variable exists (GitHub Actions), parse it
-    email_list = [email.strip() for email in recipient_emails.split(",")]
-else:
-    # Fallback to hardcoded list (local development) - REPLACE WITH YOUR EMAILS
-    email_list = ["recipient1@example.com", "recipient2@example.com"]
+# Dynamic Subscriber Management System
+# Load subscriber emails from file-based system (supports dynamic add/remove)
+def load_subscribers():
+    """Load subscriber emails from various sources"""
+    subscribers = []
+    
+    # Check if we have a subscribers file
+    import json
+    import os
+    
+    # Try to load from subscribers.json (main source)
+    if os.path.exists("subscribers.json"):
+        try:
+            with open("subscribers.json", "r") as f:
+                data = json.load(f)
+                subscribers = data.get("emails", [])
+                print(f"📧 Loaded {len(subscribers)} subscribers from subscribers.json")
+        except Exception as e:
+            print(f"⚠️ Error loading subscribers.json: {e}")
+    
+    # Fallback to environment variable if no file exists
+    if not subscribers:
+        recipient_emails = os.getenv("RECIPIENT_EMAILS")
+        if recipient_emails:
+            subscribers = [email.strip() for email in recipient_emails.split(",")]
+            print(f"📧 Loaded {len(subscribers)} subscribers from environment variable")
+        else:
+            # Last resort - hardcoded list (REPLACE WITH YOUR EMAILS)
+            subscribers = ["recipient1@example.com", "recipient2@example.com"]
+            print("📧 Using fallback subscriber list - please update!")
+    
+    # Filter out unsubscribed emails
+    active_subscribers = get_active_emails(subscribers)
+    print(f"📧 Active subscribers after filtering unsubscribes: {len(active_subscribers)}")
+    return active_subscribers
 
-# Filter out unsubscribed emails
-active_email_list = get_active_emails(email_list)
-
-SUBSCRIBERS = {
-    "emails": active_email_list
-}
+SUBSCRIBERS = load_subscribers()
 
 # Custom message template for batched internships
 BATCH_MESSAGE_TEMPLATE = """🚀Internship Alert - Notes Shaala! 

@@ -1,0 +1,12 @@
+{
+  "emails": [
+    "abhishek07122004@gmail.com",
+    "pushpendrasingh9753@gmail.com",
+    "dev.pant13@gmail.com",
+    "vaibhavwork0725@gmail.com",
+    "vanshagarwal0144@gmail.com",
+    "swayamgupta2003@gmail.com"
+  ],
+  "last_updated": "2025-07-11 17:14:07",
+  "notes": "Add or remove emails from the 'emails' array. The bot will automatically filter out unsubscribed emails."
+}

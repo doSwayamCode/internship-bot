@@ -15,7 +15,7 @@ def send_batch_email_only():
     print(f"📮 Preparing to send {len(batch)} internships via email...")
     
     # Get email recipients from config
-    email_recipients = SUBSCRIBERS['emails']
+    email_recipients = SUBSCRIBERS
     
     # Use SMTP config directly
     smtp_config = SMTP_CONFIG

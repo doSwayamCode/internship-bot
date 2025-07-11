@@ -33,7 +33,7 @@ jobs:
           # Add these secrets in your GitHub repo settings
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
-          RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
+          # Note: RECIPIENT_EMAILS no longer needed - using subscribers.json
         run: |
           # First process any unsubscribe requests (email-based)
           python email_unsubscribe_processor.py || echo "Unsubscribe processing failed, continuing..."
